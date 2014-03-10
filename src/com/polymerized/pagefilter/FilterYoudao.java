@@ -1,19 +1,16 @@
 package com.polymerized.pagefilter;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
-import org.jsoup.select.Elements;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.polymerized.bean.MetaMeaning;
 
@@ -24,115 +21,83 @@ import com.polymerized.bean.MetaMeaning;
  * 
  */
 public class FilterYoudao {
-	/**
-	 * 通过一个Jsoup对象返回MetaMeaning对象列表
-	 * 
-	 * @param doc
-	 */
-	private List<MetaMeaning> getMeanFromJsoupDoc(Document doc) {
-		List<MetaMeaning> relList = new ArrayList<MetaMeaning>();
-		MetaMeaning meaning = null;
 
-		Elements elems = doc.getElementById("catelist").children();
-		ListIterator<Element> ite = elems.listIterator();
-		while (ite.hasNext()) {
-			Element element = ite.next();
-			meaning = new MetaMeaning();
+	DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+			.newInstance();
 
-			Element en = element.select("div.en").first();
-			// 英文键
-			String keyString = en.child(0).html();
-			keyString = keyString.substring(keyString.lastIndexOf("p;") + 2,
-					keyString.length());
-			// System.out.println(keyString);
-			meaning.setKey(keyString);
-
-			// 音标
-			String phnString = en.select("span.pho").html();
-			phnString = phnString.replace("&nbsp;", " ");
-			// System.out.println(phnString);
-			meaning.setPhnmic(phnString);
-
-			// 中文简要翻译
-			Element cn = element.select("div.cn").first();
-			// System.out.println(cn.html());
-			List<String> baseExp = new ArrayList<String>();
-			baseExp.add(cn.html());
-			meaning.setBaseExplain(baseExp);
-
-			// 例句
-			Elements en_sen = element.select("div.en_sen");
-			Elements cn_sen = element.select("div.cn_sen");
-			int size = en_sen.size();
-			Map<String, String> expMap = new HashMap<String, String>();
-			for (int i = 0; i < size; i++) {
-				String enString = en_sen.get(i).html();
-				int endtagIndex = enString.indexOf("<s");
-				if (endtagIndex != -1)
-					enString = enString.substring(0, enString.indexOf("<s"));
-				enString = enString.trim();
-				enString = enString.replace("\n", "");
-				// System.out.println("--" + i + "---" + enString);
-				String cnString = cn_sen.get(i).html();
-				cnString = cnString.trim();
-				cnString = cnString.replace("\n", "");
-				// System.out.println("--" + i + "---" + cnString);
-				expMap.put(enString, cnString);
-			}
-			meaning.setExample(expMap);
-
-			// 扩展内容
-			Element expUrl = element.select("div.more_st").first();
-			if (expUrl != null) {
-				meaning.setExtension("host"
-						+ expUrl.select("a").first().attr("href"));
-			}
-			relList.add(meaning);
-		}
-		return relList;
-	}
-
-	/**
-	 * 通过分析网页内容返回词典义
-	 * 
-	 * @param pageContent
-	 */
-	public List<MetaMeaning> getMeanFromWebpage(String pageContent) {
-		if (pageContent == null || pageContent.equals(""))
+	public List<MetaMeaning> getMeansBykewword(String keyword) {
+		if (keyword == null || keyword.equals(""))
 			return null;
-		Document doc = Jsoup.parse(Jsoup.clean(pageContent, Whitelist.basic()));
-		return getMeanFromJsoupDoc(doc);
-	}
 
-	/**
-	 * 从网络地址加载内容
-	 * 
-	 */
-	public List<MetaMeaning> getMeanFromUrl(String url) {
+		List<MetaMeaning> reList = new ArrayList<MetaMeaning>();
 		Document doc = null;
+
+		String url = "http://fanyi.youdao.com/openapi.do?keyfrom=AllDict&key=752015575&type=data&doctype=xml&version=1.1&q="
+				+ keyword;
+
 		try {
-			doc = Jsoup.connect(url).get();
-		} catch (IOException e) {
-			System.out.println("访问地址失败");
+			DocumentBuilder builder = builderFactory.newDocumentBuilder();
+			doc = builder.parse(url);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return getMeanFromJsoupDoc(doc);
-	}
 
-	/**
-	 * 从文件加载
-	 */
-	public List<MetaMeaning> getMeanFromFile(String filename) {
-		Document doc = null;
-		File file = new File(filename);
-		try {
-			doc = Jsoup.parse(file, "UTF-8", null);
-			Cleaner cleaner = new org.jsoup.safety.Cleaner(Whitelist.basic());
-			doc = cleaner.clean(doc);
-		} catch (IOException e) {
-			System.out.println("打开文件失败");
-			e.printStackTrace();
+		MetaMeaning meaning = new MetaMeaning();
+		// 键
+		String keyString = doc.getElementsByTagName("query").item(0)
+				.getTextContent();
+		// System.out.println(keyString);
+		meaning.setKey(keyString);
+
+		// 音标
+		String phnString = doc.getElementsByTagName("phonetic").item(0)
+				.getTextContent();
+		// System.out.println(phnString);
+		meaning.setPhnmic(phnString);
+
+		// 基本释义
+		List<String> baseExplain = new ArrayList<String>();
+		NodeList baseNodes = doc.getElementsByTagName("explains").item(0)
+				.getChildNodes();
+		int length = baseNodes.getLength();
+		for (int i = 0; i < length; i++) {
+			String ex = baseNodes.item(i).getTextContent().trim();
+			if (ex == null || ex.equals(""))
+				continue;
+			baseExplain.add(ex);
 		}
-		return getMeanFromJsoupDoc(doc);
+		meaning.setBaseExplain(baseExplain);
+
+		// 扩展释义（网络释义)
+		Map<String, String> extMap = new HashMap<String, String>();
+		NodeList extNodes = doc.getElementsByTagName("web").item(0)
+				.getChildNodes();
+		length = extNodes.getLength();
+		for (int i = 0; i < length; i++) {
+			Node explainNode = extNodes.item(i);
+
+			if (explainNode.getNodeType() != Node.ELEMENT_NODE)
+				continue;
+			// System.out.println(explainNode.getNodeName());
+
+			NodeList expList = explainNode.getChildNodes();
+			String webKeyString = expList.item(1).getChildNodes().item(0)
+					.getNodeValue();
+
+			String webValueString = "";
+			NodeList valuesList = expList.item(3).getChildNodes();
+			for (int k = 0; k < valuesList.getLength(); k++) {
+				Node expNode = valuesList.item(k);
+				if (expNode.getNodeType() != Node.ELEMENT_NODE)
+					continue;
+				webValueString += valuesList.item(k).getChildNodes().item(0)
+						.getNodeValue()
+						+ "; ";
+			}
+			extMap.put(webKeyString, webValueString);
+		}
+		meaning.setExample(extMap);
+		reList.add(meaning);
+		return reList;
 	}
 }
