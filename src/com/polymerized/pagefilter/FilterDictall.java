@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import com.polymerized.bean.MetaMeaning;
 
 /**
@@ -20,6 +22,21 @@ import com.polymerized.bean.MetaMeaning;
  * 
  */
 public class FilterDictall {
+	@SuppressWarnings("deprecation")
+	public List<MetaMeaning> getMeansBykeyword(String keyword) {
+		keyword = java.net.URLEncoder.encode(keyword);
+		String urlString = "http://dictall.com/dictall/result.jsp?cd=UTF-8&keyword="
+				+ keyword;
+		Document doc = null;
+		try {
+			doc = Jsoup.connect(urlString).get();
+		} catch (IOException e) {
+			System.out.println("访问地址失败");
+			e.printStackTrace();
+		}
+		return getMeanFromJsoupDoc(doc);
+	}
+
 	/**
 	 * 通过一个Jsoup对象返回MetaMeaning对象列表
 	 * 
@@ -90,45 +107,4 @@ public class FilterDictall {
 		return relList;
 	}
 
-	/**
-	 * 通过分析网页内容返回词典义
-	 * 
-	 * @param pageContent
-	 */
-	public List<MetaMeaning> getMeanFromWebpage(String pageContent) {
-		if (pageContent == null || pageContent.equals(""))
-			return null;
-		Document doc = Jsoup.parse(pageContent);
-		return getMeanFromJsoupDoc(doc);
-	}
-
-	/**
-	 * 从网络地址加载内容
-	 * 
-	 */
-	public List<MetaMeaning> getMeanFromUrl(String url) {
-		Document doc = null;
-		try {
-			doc = Jsoup.connect(url).get();
-		} catch (IOException e) {
-			System.out.println("访问地址失败");
-			e.printStackTrace();
-		}
-		return getMeanFromJsoupDoc(doc);
-	}
-
-	/**
-	 * 从文件加载
-	 */
-	public List<MetaMeaning> getMeanFromFile(String filename) {
-		Document doc = null;
-		File file = new File(filename);
-		try {
-			doc = Jsoup.parse(file, "UTF-8", null);
-		} catch (IOException e) {
-			System.out.println("打开文件失败");
-			e.printStackTrace();
-		}
-		return getMeanFromJsoupDoc(doc);
-	}
 }

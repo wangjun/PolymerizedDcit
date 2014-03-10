@@ -25,16 +25,16 @@ public class FilterYoudao {
 	DocumentBuilderFactory builderFactory = DocumentBuilderFactory
 			.newInstance();
 
-	public List<MetaMeaning> getMeansBykewword(String keyword) {
+	@SuppressWarnings("deprecation")
+	public List<MetaMeaning> getMeansBykeyword(String keyword) {
 		if (keyword == null || keyword.equals(""))
 			return null;
-
+		keyword = java.net.URLEncoder.encode(keyword);
 		List<MetaMeaning> reList = new ArrayList<MetaMeaning>();
 		Document doc = null;
 
 		String url = "http://fanyi.youdao.com/openapi.do?keyfrom=AllDict&key=752015575&type=data&doctype=xml&version=1.1&q="
 				+ keyword;
-
 		try {
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			doc = builder.parse(url);
@@ -50,10 +50,12 @@ public class FilterYoudao {
 		meaning.setKey(keyString);
 
 		// 音标
-		String phnString = doc.getElementsByTagName("phonetic").item(0)
-				.getTextContent();
-		// System.out.println(phnString);
-		meaning.setPhnmic(phnString);
+		Node phnNode = doc.getElementsByTagName("phonetic").item(0);
+		if (phnNode != null) {
+			String phnString = phnNode.getTextContent();
+			// System.out.println(phnString);
+			meaning.setPhnmic("[" + phnString + "]");
+		}
 
 		// 基本释义
 		List<String> baseExplain = new ArrayList<String>();
