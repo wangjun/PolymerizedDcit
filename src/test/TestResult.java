@@ -1,10 +1,11 @@
 package test;
 
-import com.polymerized.bean.dict.MetaMeaning;
-import com.polymerized.display.dict.DictToWeb;
-import com.polymerized.io.FileUtils;
+import java.util.Iterator;
+import java.util.List;
+
+import com.polymerized.bean.MetaMeaning;
 import com.polymerized.io.NetUtils;
-import com.polymerized.pagefilter.dict.FilterDictall;
+import com.polymerized.pagefilter.FilterDictall;
 
 /**
  * 结果测试类
@@ -15,10 +16,14 @@ import com.polymerized.pagefilter.dict.FilterDictall;
 public class TestResult {
 	public void test() {
 		String url = "http://dictall.com/dictall/result.jsp?cd=UTF-8&keyword=$KEYWORD$";
-		String pageContent = new NetUtils().getPageByKeywords(url, "扩展");
-		MetaMeaning dictMeaning = new FilterDictall()
+		String pageContent = new NetUtils().getPageByKeywords(url, "欧西精神");
+		List<MetaMeaning> expList = new FilterDictall()
 				.getMeanFromWebpage(pageContent);
-		System.out.println(dictMeaning);
+		Iterator<MetaMeaning> meanite = expList.iterator();
+		while(meanite.hasNext())
+			System.out.println(meanite.next());
+	//	ListIterator<MetaMeaning> ite = dictMeaning.listIterator();
+		//System.out.println(dictMeaning);
 	}
 
 	public static void main(String args[]) {

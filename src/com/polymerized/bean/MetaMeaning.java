@@ -1,4 +1,4 @@
-package com.polymerized.bean.dict;
+package com.polymerized.bean;
 
 import java.util.Iterator;
 import java.util.List;
@@ -27,18 +27,24 @@ public class MetaMeaning {
 	/** 扩展解释 */
 	private String extension;
 
+	public MetaMeaning() {
+		key = "";
+		phnmic = "";
+		extension = "";
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("key:" + key);
 		sb.append("\nphonemic:" + phnmic);
 		for (String s : baseExplain)
-			sb.append("\n-" + s);
+			sb.append("\n" + s);
 
 		Iterator ite = example.entrySet().iterator();
 		int i = 1;
 		while (ite.hasNext()) {
 			Entry<String, String> entry = (Entry<String, String>) ite.next();
-			sb.append("\n" + i + "." + entry.getKey());
+			sb.append("\n" + i++ + "." + entry.getKey());
 			sb.append("\n" + entry.getValue());
 		}
 

@@ -1,6 +1,6 @@
-package com.polymerized.pagefilter.dict;
+package com.polymerized.pagefilter;
 
-import com.polymerized.bean.dict.MetaMeaning;
+import com.polymerized.bean.MetaMeaning;
 
 /**
  * 分析有道词典的网页内容，过滤信息之后存储到词典义对象中
