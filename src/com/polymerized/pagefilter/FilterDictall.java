@@ -11,7 +11,6 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
@@ -30,11 +29,13 @@ public class FilterDictall {
 	 * @param doc
 	 */
 	private List<MetaMeaning> getMeanFromJsoupDoc(Document doc) {
+
 		List<MetaMeaning> relList = new ArrayList<MetaMeaning>();
 		MetaMeaning meaning = null;
 
 		Elements elems = doc.getElementById("catelist").children();
 		ListIterator<Element> ite = elems.listIterator();
+
 		while (ite.hasNext()) {
 			Element element = ite.next();
 			meaning = new MetaMeaning();
@@ -100,7 +101,7 @@ public class FilterDictall {
 	public List<MetaMeaning> getMeanFromWebpage(String pageContent) {
 		if (pageContent == null || pageContent.equals(""))
 			return null;
-		Document doc = Jsoup.parse(Jsoup.clean(pageContent, Whitelist.basic()));
+		Document doc = Jsoup.parse(pageContent);
 		return getMeanFromJsoupDoc(doc);
 	}
 
@@ -127,8 +128,6 @@ public class FilterDictall {
 		File file = new File(filename);
 		try {
 			doc = Jsoup.parse(file, "UTF-8", null);
-			Cleaner cleaner = new org.jsoup.safety.Cleaner(Whitelist.basic());
-			doc = cleaner.clean(doc);
 		} catch (IOException e) {
 			System.out.println("打开文件失败");
 			e.printStackTrace();
