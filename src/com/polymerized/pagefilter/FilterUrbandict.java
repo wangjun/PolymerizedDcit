@@ -32,16 +32,6 @@ public class FilterUrbandict implements DictFilter {
 		return getMeanFromJsoupDoc(doc);
 	}
 
-	public List<MetaMeaning> getMeansFromFile(String filename) {
-		File file = new File(filename);
-		Document doc = null;
-		try {
-			doc = Jsoup.parse(file, "UTF-8");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return getMeanFromJsoupDoc(doc);
-	}
 
 	/**
 	 * 通过一个Jsoup对象返回MetaMeaning对象列表
