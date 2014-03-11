@@ -17,8 +17,8 @@ public class FilterDictallTest {
 	public void testGetMeanFromWebpage() {
 		List<MetaMeaning> expList = new FilterDictall().getMeansBykeyword("匹配");
 		Iterator<MetaMeaning> meanite = expList.iterator();
-		while (meanite.hasNext())
-			System.out.println(meanite.next());
+//		while (meanite.hasNext())
+//			System.out.println(meanite.next());
 	}
 
 }

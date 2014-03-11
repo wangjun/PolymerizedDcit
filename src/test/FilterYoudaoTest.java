@@ -17,10 +17,10 @@ public class FilterYoudaoTest {
 
 	@Test
 	public void testGetMeansBykewword() {
-		List<MetaMeaning> list = new FilterYoudao().getMeansBykeyword("hello");
+		List<MetaMeaning> list = new FilterYoudao().getMeansBykeyword("maven");
 		Iterator<MetaMeaning> ite = list.iterator();
 		while (ite.hasNext())
-			System.out.println(ite.next());
+			System.out.println(ite.next().toString());
 	}
 
 }

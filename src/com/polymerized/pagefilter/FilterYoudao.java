@@ -12,6 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.polymerized.bean.DictFilter;
 import com.polymerized.bean.MetaMeaning;
 
 /**
@@ -20,8 +21,10 @@ import com.polymerized.bean.MetaMeaning;
  * @author edgar
  * 
  */
-public class FilterYoudao {
+public class FilterYoudao implements DictFilter {
 
+	public final String reqUrl = "http://fanyi.youdao.com/openapi.do?keyfrom=AllDict&key=752015575&type=data&doctype=xml&version=1.1&q=";
+	
 	DocumentBuilderFactory builderFactory = DocumentBuilderFactory
 			.newInstance();
 
@@ -33,11 +36,9 @@ public class FilterYoudao {
 		List<MetaMeaning> reList = new ArrayList<MetaMeaning>();
 		Document doc = null;
 
-		String url = "http://fanyi.youdao.com/openapi.do?keyfrom=AllDict&key=752015575&type=data&doctype=xml&version=1.1&q="
-				+ keyword;
 		try {
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
-			doc = builder.parse(url);
+			doc = builder.parse(reqUrl + keyword);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

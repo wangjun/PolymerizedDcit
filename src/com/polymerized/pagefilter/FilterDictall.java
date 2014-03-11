@@ -1,6 +1,5 @@
 package com.polymerized.pagefilter;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.polymerized.bean.DictFilter;
 import com.polymerized.bean.MetaMeaning;
 
 /**
@@ -21,15 +21,16 @@ import com.polymerized.bean.MetaMeaning;
  * @author edgar
  * 
  */
-public class FilterDictall {
+public class FilterDictall implements DictFilter {
+
+	public final String reqUrl = "http://dictall.com/dictall/result.jsp?cd=UTF-8&keyword=";
+
 	@SuppressWarnings("deprecation")
 	public List<MetaMeaning> getMeansBykeyword(String keyword) {
 		keyword = java.net.URLEncoder.encode(keyword);
-		String urlString = "http://dictall.com/dictall/result.jsp?cd=UTF-8&keyword="
-				+ keyword;
 		Document doc = null;
 		try {
-			doc = Jsoup.connect(urlString).get();
+			doc = Jsoup.connect(reqUrl + keyword).get();
 		} catch (IOException e) {
 			System.out.println("访问地址失败");
 			e.printStackTrace();
@@ -85,13 +86,18 @@ public class FilterDictall {
 				int endtagIndex = enString.indexOf("<s");
 				if (endtagIndex != -1)
 					enString = enString.substring(0, enString.indexOf("<s"));
-				enString = enString.trim();
 				enString = enString.replace("\n", "");
-				// System.out.println("--" + i + "---" + enString);
+				enString = enString.replace("<font color=\"#FF0000\">", "{");
+				enString = enString.replace("</font>", "}");
+				enString = enString.trim();
+
+//				System.out.println("--" + i + "---" + enString);
 				String cnString = cn_sen.get(i).html();
-				cnString = cnString.trim();
+				cnString = cnString.replace("<font color=\"#FF0000\">", "{");
+				cnString = cnString.replace("</font>", "}");
 				cnString = cnString.replace("\n", "");
-				// System.out.println("--" + i + "---" + cnString);
+				cnString = cnString.trim();
+//				System.out.println("--" + i + "---" + cnString);
 				expMap.put(enString, cnString);
 			}
 			meaning.setExample(expMap);
